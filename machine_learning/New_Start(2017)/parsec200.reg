@@ -1,0 +1,50 @@
+# Region file format: DS9 version 4.1
+global color=green dashlist=8 3 width=1 font="helvetica 10 normal roman" select=1 highlite=1 dash=0 fixed=0 edit=1 move=1 delete=1 include=1 source=1
+physical
+point(1768.88,1912.42) # point=boxcircle color=yellow
+point(1780.15,1924.89) # point=boxcircle color=yellow
+point(1771.92,1936.55) # point=boxcircle color=yellow
+point(1746.39,1912.22) # point=boxcircle color=yellow
+point(1782.3,1950.81) # point=boxcircle color=yellow
+point(1800.95,1917.9) # point=boxcircle
+point(1746.89,1923.15) # point=boxcircle color=yellow
+point(1848.93,1882.58) # point=boxcircle color=yellow
+point(1753.25,1979.23) # point=boxcircle color=yellow
+point(1783.82,1966.79) # point=boxcircle
+point(1807.34,1964.51) # point=boxcircle color=yellow
+point(1796.25,1951.46) # point=boxcircle color=yellow
+point(1756.3,1931.1) # point=boxcircle color=yellow
+point(1811.76,1872.56) # point=boxcircle color=yellow
+point(1747.8,1966.8) # point=boxcircle color=yellow
+point(1774.12,1898.82) # point=boxcircle color=yellow
+point(1767.45,1878.97) # point=boxcircle color=yellow
+point(1806.68,1872.48) # point=boxcircle color=yellow
+point(1831.24,1931.04) # point=boxcircle color=yellow
+point(1805.44,1913.56) # point=boxcircle color=yellow
+point(1850.01,1918.8) # point=boxcircle color=yellow
+point(1759.78,1951.96) # point=boxcircle color=yellow
+point(1735.2,1920) # point=boxcircle
+point(1802.65,1992.64) # point=boxcircle color=yellow
+point(1735.55,1938.94) # point=boxcircle color=yellow
+point(1772.85,1893.45) # point=boxcircle color=yellow
+point(1761.96,1944.09) # point=boxcircle color=yellow
+point(1750.47,1882.94) # point=boxcircle color=yellow
+point(1857.82,1905.75) # point=boxcircle
+point(1743.15,1937.75) # point=boxcircle color=yellow
+point(1796.49,1881.18) # point=boxcircle color=yellow
+point(1752.49,1937.79) # point=boxcircle color=yellow
+point(1828.11,1960.62) # point=boxcircle
+point(1743.08,1979.17) # point=boxcircle color=yellow
+point(1807.6,1899.45) # point=boxcircle
+point(1748.09,1889.78) # point=boxcircle color=yellow
+point(1742.44,1964.2) # point=boxcircle color=yellow
+point(1738.31,1886.46) # point=boxcircle
+point(1789.01,1986.99) # point=boxcircle
+point(1842.01,1964.47) # point=boxcircle
+point(1727.45,1920.3) # point=boxcircle
+point(1721.14,1945.32) # point=boxcircle color=yellow
+point(1816.11,1938.05) # point=boxcircle
+point(1814.74,1993.39) # point=boxcircle
+point(1790.42,1882.65) # point=boxcircle
+point(1763.36,1981.1) # point=boxcircle
+point(1802.98,1934.49) # point=boxcircle color=yellow
