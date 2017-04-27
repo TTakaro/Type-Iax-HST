@@ -1,14 +1,20 @@
 import os
 import glob
+import platform
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas
 import scipy.integrate as integrate
+import multiprocessing as mp
+from functools import partial
 
 
 #################### Sets Up Variables for Pulling From Isochrones ######################
 
-mist_dir = "/Users/tktakaro/Documents/Type-Iax-HST/MIST_v1.0_HST_ACSWF"
+if platform.system() == "Darwin":
+    mist_dir = "/Users/tktakaro/Documents/Type-Iax-HST/MIST_v1.0_HST_ACSWF"
+if platform.system() == "Windows":
+    mist_dir = "C:/Users/Tyler/Documents/9. UCSC/Research/Type-Iax-HST-master/MIST_v1.0_HST_ACSWF"
 kwargs = {"names": ["EEP", "log10_isochrone_age_yr", "initial_mass", "log_Teff", "log_g",
                     "log_L", "z_surf", "ACS_WFC_F435W", "ACS_WFC_F475W", "ACS_WFC_F502N",
                     "ACS_WFC_F550M", "ACS_WFC_F555W", "ACS_WFC_F606W", "ACS_WFC_F625W", 
@@ -17,6 +23,7 @@ kwargs = {"names": ["EEP", "log10_isochrone_age_yr", "initial_mass", "log_Teff",
          "delim_whitespace": True, "comment": "#"}
 isochrones = {}
 for filename in glob.glob(mist_dir + "/*.iso.cmd"):
+    filename = filename.replace("\\", "/")
     feh_string = filename.split("/")[-1].split("_")[3] # Pulls metalicity information
     if feh_string[0] == "p":
         feh = float(feh_string[1:]) # feh is [Fe/H]
@@ -69,7 +76,8 @@ def Random_mass_mag(mass, mag4, mag5, mag6, mag8):
     is written with bad coding practices, as it uses several variables defined outside the function. For this reason,
     be very careful (just don't) using this function outside of the bounds of this script.
 """
-def False_Stars_CChi(age, reddening):
+def False_Stars_CChi(reddening, age):
+    np.random.seed()
     dist = np.random.normal(loc=21.81e6, scale=1.53e6) # Chooses distance using gaussian with errors from literature
     dist_adjust = 5 * (np.log10(dist) - 1) # Converts distance to a magnitude adjustment
     F435W_ext = 0.283 # extinction in F435W in UGC 12682 from NED
@@ -111,6 +119,7 @@ def False_Stars_CChi(age, reddening):
         temp = temp + (phys_dist_weight * np.amin(np.sqrt((False_stars[x,2] - mag_435)**2
           + (False_stars[x,3] - mag_555)**2 + (False_stars[x,4] - mag_625)**2 + (False_stars[x,5] - mag_814)**2)))**2
     phys_dist_temp /= False_stars.shape[0]
+    #output.put(np.sqrt(temp)/phys_dist_temp)
     return np.sqrt(temp)/phys_dist_temp
 
 
@@ -121,19 +130,33 @@ ages = ages[(ages > 7.68) & (ages < 7.72)] #ages[(ages >= 6.5) & (ages <= 8.5)]
 df = isochrones[-0.50] # Sets metallicity. Eventually this will be varied over.
 Gal_ext = 0 # Sets extinction. Eventually this will be varied over
 
-CChi_false = np.zeros([2,1,5000]) # First dimension is age, CChi; Second is varying age; Third is MC runs
+CChi_false = np.zeros([2,1,1000]) # First dimension is age, CChi; Second is varying age; Third is MC runs
 
 # Generates false stars and applies a CChi test 1000 times to get a distribution of values
 for i, age in enumerate(ages):
     CChi_false[0,0,:] = age
-    for i in range(CChi_false.shape[2]):
-        CChi_false[1,0,i] = False_Stars_CChi(age, 0)
+    func = partial(False_Stars_CChi, 0)
+    if __name__ == '__main__':
+        pool = mp.Pool(os.cpu_count())
+        results = pool.map(func, age * np.ones(1000))
+    CChi_false[1,0,:] = list(results)#list(map(func, age * np.ones(100)))
+    #for i in range(CChi_false.shape[2]):
+    #    CChi_false[1,0,i] = False_Stars_CChi(age, 0)
 outfile = "CChi_false_age7.7"
 np.save(outfile, CChi_false)
 
+"""
+# Define an output queue
+output = mp.Queue()
+# Setup a list of processes to run
+for i, age in enumerate(ages):
+    CChi_false[0,0,:] = age
 
-# Fit a probability distribution to the histogram of CChi_false values
-x = np.linspace(0,100,100)
-y = plt.hist(CChi_false[1,0,:], bins=np.linspace(0,100,101))[0]
-p = np.poly1d(np.polyfit(x,y,20)) # Applies a 20th order polynomial fit to the histogram
-plt.plot(x, p(x), 'r--')
+    processes = [mp.Process(target=False_Stars_CChi, args=(age,0,output)) for x in range(4)]
+
+for p in processes:
+    p.start()
+for p in processes:
+    p.join()
+CChi_false = [output.get() for p in processes]
+"""
