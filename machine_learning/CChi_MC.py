@@ -1,4 +1,5 @@
 import os
+import sys
 import glob
 import platform
 import matplotlib.pyplot as plt
@@ -9,12 +10,50 @@ import multiprocessing as mp
 from functools import partial
 
 
+############################## Command Line Arguments ##############################
+
+if len(sys.argv) > 1: # Checks for any command line arguments
+    if str(sys.argv) == '08ha':
+        nstars = 24
+        distance = 21.81e6
+        distance_error = 1.53e6
+        F435W_ext = 0.283 # extinction in F435W in UGC 12682 from NED
+        F555W_ext = 0.219 # extinction in F555W in UGC 12682 from NED
+        F625W_ext = 0.174 # extinction in F625W in UGC 12682 from NED
+        F814W_ext = 0.120 # extinction in F814W in UGC 12682 from NED
+        metallicity = -0.50
+    if str(sys.argv) == '10ae':
+        nstars = 28
+        distance = 11.0873e6
+        distance_error = 1.02266e6
+        F435W_ext = .509 # extinction in F435W in ESO 162-17 from NED
+        F555W_ext = .394 # extinction in F555W in ESO 162-17 from NED
+        F625W_ext = .313 # extinction in F625W in ESO 162-17 from NED
+        F814W_ext = .215 # extinction in F814W in ESO 162-17 from NED
+        metallicity = -0.75
+    if str(sys.argv) == '10el':
+        nstars = 50 # THIS IS WRONG!
+        distance = 5.63e6
+        distance_error = 1.09e6
+        F435W_ext = 0.033 # extinction in F435W in NGC 1566 from NED
+        F555W_ext = 0.025 # extinction in F555W in NGC 1566 from NED
+        F625W_ext = .021 # extinction in F625W in NGC 1566 from NED
+        F814W_ext = .014 # extinction in F814W in NGC 1566 from NED
+        metallicity = 0.50
+else: # If no arguments given, uses the arguments for SN 2008ha
+    nstars = 24
+    distance = 21.81e6
+    distance_error = 1.53e6
+
+
 #################### Sets Up Variables for Pulling From Isochrones ######################
 
+# Checks operating system, to adjust filesystem to work on both.
 if platform.system() == "Darwin":
     mist_dir = "/Users/tktakaro/Documents/Type-Iax-HST/MIST_v1.0_HST_ACSWF"
 if platform.system() == "Windows":
     mist_dir = "C:/Users/Tyler/Documents/9. UCSC/Research/Type-Iax-HST-master/MIST_v1.0_HST_ACSWF"
+
 kwargs = {"names": ["EEP", "log10_isochrone_age_yr", "initial_mass", "log_Teff", "log_g",
                     "log_L", "z_surf", "ACS_WFC_F435W", "ACS_WFC_F475W", "ACS_WFC_F502N",
                     "ACS_WFC_F550M", "ACS_WFC_F555W", "ACS_WFC_F606W", "ACS_WFC_F625W", 
@@ -39,8 +78,8 @@ ages = np.array(list(set(df.log10_isochrone_age_yr)))
 ages.sort()
 age_cmd = {}
 
-######################## Encodes functions for the Monte Carlo ########################
 
+######################## Encodes functions for the Monte Carlo ########################
 
 """ These two functions set up the IMF sampling. The function invSalpeter is the inverse of the cumulative distribution
     for a Salpeter IMF, or equivalently, the quantile function. This is useful because it allows us to draw masses at
@@ -78,12 +117,9 @@ def Random_mass_mag(mass, mag4, mag5, mag6, mag8):
 """
 def False_Stars_CChi(reddening, age):
     np.random.seed()
-    dist = np.random.normal(loc=21.81e6, scale=1.53e6) # Chooses distance using gaussian with errors from literature
+    # Chooses distance using gaussian with errors from literature
+    dist = np.random.normal(loc=distance, scale=distance_error)
     dist_adjust = 5 * (np.log10(dist) - 1) # Converts distance to a magnitude adjustment
-    F435W_ext = 0.283 # extinction in F435W in UGC 12682 from NED
-    F555W_ext = 0.219 # extinction in F555W in UGC 12682 from NED
-    F625W_ext = 0.174 # extinction in F625W in UGC 12682 from NED
-    F814W_ext = 0.120 # extinction in F814W in UGC 12682 from NED
 
     idx = df.log10_isochrone_age_yr == age
     mass = df[idx].initial_mass
@@ -94,13 +130,13 @@ def False_Stars_CChi(reddening, age):
 
 
     # This array will hold 1. Mass 2. Radial distance 3-6. Magnitudes
-    False_stars = np.zeros([24, 6]) # Here, 24 corresponds to the number of real stars considered.
+    False_stars = np.zeros([nstars, 6]) # Here, 24 corresponds to the number of real stars considered.
 
     temp = 0 # This will hold the cumulative difference in magnitdue between the stars and isochrone
     phys_dist_temp = 0 # This will hold the comulative phyical distance between the stars and the SN position
     for x in range(False_stars.shape[0]):
         # Generates stars with randomly drawn mass, then finds corresponding magnitude in each filter
-        False_stars[x,1], False_stars[x,2], False_stars[x,3], False_stars[x,4], False_stars[x,5] = Random_mass_mag(
+        False_stars[x,0], False_stars[x,2], False_stars[x,3], False_stars[x,4], False_stars[x,5] = Random_mass_mag(
             mass, mag_435, mag_555, mag_625, mag_814)
         # Checks to make sure that the magnitude in each filter is above some limiting magnitude.
         while (False_stars[x,2] > 30) or (False_stars[x,3] > 30) or (False_stars[x,4] > 30) or (False_stars[x,5] > 30):
@@ -108,55 +144,49 @@ def False_Stars_CChi(reddening, age):
                 mass, mag_435, mag_555, mag_625, mag_814)
     
         # Samples radial distribution to get radial distance from SN
-        sigma = .92 * 10**age * 3.15e7 * (360 * 60 * 60)/(2 * np.pi) * 1/(21.81e6 * 3.086e13 * .05)
+        sigma = .92 * 10**age * 3.15e7 * (360 * 60 * 60)/(2 * np.pi) * 1/(distance * 3.086e13 * .05)
         # Adds in inherent spread in star position at formation with the 100 * rand.rand()
         False_stars[x,1] = abs(np.random.normal(loc=0, scale=sigma)) + 100 * np.random.random()
     
         # Now, determine Crappy Chi-squared fit
-        phys_dist_weight = 2 * 1/(np.sqrt(2 * np.pi) * sigma) * np.exp(- False_stars[x,1]**2/(2 * sigma**2)) # Gaussian in radius
+        # Convolves a normal distribution with a flat distribution to get distribution used above to generate radius
+        weight_func = np.convolve(1/(np.sqrt(2 * np.pi) * sigma) * np.exp(- np.linspace(-200,200,1000)**2/(2 * sigma**2)),
+                                 np.append(np.zeros(375),np.append(np.ones(250),np.zeros(375))))
+        # Finds where in the convolved array the generated radius falls
+        phys_dist_weight = weight_func[1000 + int(False_stars[x,1]*2.5)]
         phys_dist_temp += phys_dist_weight # Will be used to compute average of the weights
-        # Adds the distance for each data point in quadrature.
+
+        # Adds the magnitude difference for each data point in quadrature.
         temp = temp + (phys_dist_weight * np.amin(np.sqrt((False_stars[x,2] - mag_435)**2
           + (False_stars[x,3] - mag_555)**2 + (False_stars[x,4] - mag_625)**2 + (False_stars[x,5] - mag_814)**2)))**2
     phys_dist_temp /= False_stars.shape[0]
-    #output.put(np.sqrt(temp)/phys_dist_temp)
     return np.sqrt(temp)/phys_dist_temp
 
 
 ######################## Runs the Monte Carlo ########################
 
-ages = ages[(ages > 7.68) & (ages < 7.72)] #ages[(ages >= 6.5) & (ages <= 8.5)]
+ages = ages[(ages >= 6.5) & (ages <= 8.5)]
+ages.sort()
 
-df = isochrones[-0.50] # Sets metallicity. Eventually this will be varied over.
+df = isochrones[metallicity] # Sets metallicity. Eventually this will be varied over.
 Gal_ext = 0 # Sets extinction. Eventually this will be varied over
 
-CChi_false = np.zeros([2,1,1000]) # First dimension is age, CChi; Second is varying age; Third is MC runs
+CChi_false = np.zeros([2,ages.size,5000]) # First dimension is age, CChi; Second is varying age; Third is MC runs
+CChi = np.zeros([2,5000])
 
 # Generates false stars and applies a CChi test 1000 times to get a distribution of values
 for i, age in enumerate(ages):
-    CChi_false[0,0,:] = age
+    CChi_false[0,i,:] = age
     func = partial(False_Stars_CChi, 0)
     if __name__ == '__main__':
         pool = mp.Pool(os.cpu_count())
-        results = pool.map(func, age * np.ones(1000))
-    CChi_false[1,0,:] = list(results)#list(map(func, age * np.ones(100)))
-    #for i in range(CChi_false.shape[2]):
-    #    CChi_false[1,0,i] = False_Stars_CChi(age, 0)
-outfile = "CChi_false_age7.7"
+        results = pool.map(func, age * np.ones(5000))
+        CChi[1,:] = list(results)
+        pool.close()
+        out = "CChi_false_{Age}".format(Age=np.round(age,decimals=2) # Saves each age separately
+        np.save(out, CChi)
+    CChi_false[1,i,:] = CChi[1,:]
+
+
+outfile = "CChi_false_ages" # Saves all ages together
 np.save(outfile, CChi_false)
-
-"""
-# Define an output queue
-output = mp.Queue()
-# Setup a list of processes to run
-for i, age in enumerate(ages):
-    CChi_false[0,0,:] = age
-
-    processes = [mp.Process(target=False_Stars_CChi, args=(age,0,output)) for x in range(4)]
-
-for p in processes:
-    p.start()
-for p in processes:
-    p.join()
-CChi_false = [output.get() for p in processes]
-"""
