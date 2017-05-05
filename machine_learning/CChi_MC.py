@@ -44,6 +44,11 @@ else: # If no arguments given, uses the arguments for SN 2008ha
     nstars = 24
     distance = 21.81e6
     distance_error = 1.53e6
+    F435W_ext = 0.283 # extinction in F435W in UGC 12682 from NED
+    F555W_ext = 0.219 # extinction in F555W in UGC 12682 from NED
+    F625W_ext = 0.174 # extinction in F625W in UGC 12682 from NED
+    F814W_ext = 0.120 # extinction in F814W in UGC 12682 from NED
+    metallicity = -0.50
 
 
 #################### Sets Up Variables for Pulling From Isochrones ######################
@@ -74,10 +79,6 @@ for filename in glob.glob(mist_dir + "/*.iso.cmd"):
     df['ages'] = 10 ** df.log10_isochrone_age_yr / 1e9
     isochrones[feh] = df # Creates dictionary accessible by entering a particular metalicity
 
-ages = np.array(list(set(df.log10_isochrone_age_yr)))
-ages.sort()
-age_cmd = {}
-
 
 ######################## Encodes functions for the Monte Carlo ########################
 
@@ -88,7 +89,7 @@ age_cmd = {}
 def SalpeterUnNorm(m):
     return m**-2.35
 def invSalpeter(u, lower, upper):
-    norm = integrate.quad(SalpeterUnNorm, lower, upper)[0] # To go back to how it was, replace the 6's with .075's
+    norm = integrate.quad(SalpeterUnNorm, lower, upper)[0]
     return (lower**(-1.35) - 1.35 * norm * u)**(-1/1.35)
 
 """ This function generates a mass from the IMF, then determines the associated magnitude from the isochrone. It
@@ -103,7 +104,6 @@ def Random_mass_mag(mass, mag4, mag5, mag6, mag8):
     loc=np.array([mag4[np.argmin(np.abs(m - mass))], mag5[np.argmin(np.abs(m - mass))], 
                       mag6[np.argmin(np.abs(m - mass))], mag8[np.argmin(np.abs(m - mass))]])
     scale=np.array([7.8e-12 * 2.4**loc[0], 1.25e-11 * 2.4**loc[1], 1.33e-11 * 2.4**loc[2], 1.45e-11 * 2.4**loc[3]])
-    #np.random.seed()
     mags = np.random.normal(loc=loc, scale=scale, size=4)
     return np.array([m, mags[0], mags[1], mags[2], mags[3]])
 
@@ -130,7 +130,7 @@ def False_Stars_CChi(reddening, age):
 
 
     # This array will hold 1. Mass 2. Radial distance 3-6. Magnitudes
-    False_stars = np.zeros([nstars, 6]) # Here, 24 corresponds to the number of real stars considered.
+    False_stars = np.zeros([nstars, 6])
 
     temp = 0 # This will hold the cumulative difference in magnitdue between the stars and isochrone
     phys_dist_temp = 0 # This will hold the comulative phyical distance between the stars and the SN position
@@ -140,11 +140,11 @@ def False_Stars_CChi(reddening, age):
             mass, mag_435, mag_555, mag_625, mag_814)
         # Checks to make sure that the magnitude in each filter is above some limiting magnitude.
         while (False_stars[x,2] > 30) or (False_stars[x,3] > 30) or (False_stars[x,4] > 30) or (False_stars[x,5] > 30):
-            False_stars[x,1], False_stars[x,2], False_stars[x,3], False_stars[x,4], False_stars[x,5] = Random_mass_mag(
+            False_stars[x,0], False_stars[x,2], False_stars[x,3], False_stars[x,4], False_stars[x,5] = Random_mass_mag(
                 mass, mag_435, mag_555, mag_625, mag_814)
     
         # Samples radial distribution to get radial distance from SN
-        sigma = .92 * 10**age * 3.15e7 * (360 * 60 * 60)/(2 * np.pi) * 1/(distance * 3.086e13 * .05)
+        sigma = .92 * 10000000 * 3.15e7 * (360 * 60 * 60)/(2 * np.pi) * 1/(distance * 3.086e13 * .05) #10**age
         # Adds in inherent spread in star position at formation with the 100 * rand.rand()
         False_stars[x,1] = abs(np.random.normal(loc=0, scale=sigma)) + 100 * np.random.random()
     
@@ -165,10 +165,12 @@ def False_Stars_CChi(reddening, age):
 
 ######################## Runs the Monte Carlo ########################
 
-ages = ages[(ages >= 6.5) & (ages <= 8.5)]
-ages.sort()
-
 df = isochrones[metallicity] # Sets metallicity. Eventually this will be varied over.
+ages = np.array(list(set(df.log10_isochrone_age_yr)))
+ages.sort()
+age_cmd = {}
+ages = ages[(ages >= 6.5) & (ages <= 8.5)] # Sets ages to consider.
+
 Gal_ext = 0 # Sets extinction. Eventually this will be varied over
 
 CChi_false = np.zeros([2,ages.size,5000]) # First dimension is age, CChi; Second is varying age; Third is MC runs
@@ -183,7 +185,7 @@ for i, age in enumerate(ages):
         results = pool.map(func, age * np.ones(5000))
         CChi[1,:] = list(results)
         pool.close()
-        out = "CChi_false_{Age}".format(Age=np.round(age,decimals=2) # Saves each age separately
+        out = "CChi_false_{Age}".format(Age=np.round(age,decimals=2)) # Saves each age separately
         np.save(out, CChi)
     CChi_false[1,i,:] = CChi[1,:]
 
