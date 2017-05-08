@@ -3,3 +3,5 @@ Monte_Carlo_Files_1 uses limiting mags of 30 for each filter, and a sigma that i
 Monte_Carlo_Files_2 uses limiting mags of 28 for each filter, and a sigma that is proportional to 10000000, rather than 10**age.
 
 Monte_Carlo_Files_3 uses limiting mags of 30 for each filter, and a sigma that is proportional to 10000000, rather than 10**age.
+
+Monte_Carlo_Files_4 no longer uses limiting mags, instead requiring a signal-to-noise of 3, and a positive flux in each band. Sigma is proportional to 10000000, rather than 10**age.

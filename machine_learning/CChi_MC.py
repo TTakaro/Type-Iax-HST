@@ -100,12 +100,15 @@ def invSalpeter(u, lower, upper):
 def Random_mass_mag(mass, mag4, mag5, mag6, mag8):
     m = invSalpeter(np.random.random(), 4, np.amax(mass))
         
-    # Determines the magnitude corresponding to the point on the isochrone closest in mass to the chosen mass
-    loc=np.array([mag4[np.argmin(np.abs(m - mass))], mag5[np.argmin(np.abs(m - mass))], 
-                      mag6[np.argmin(np.abs(m - mass))], mag8[np.argmin(np.abs(m - mass))]])
-    scale=np.array([7.8e-12 * 2.4**loc[0], 1.25e-11 * 2.4**loc[1], 1.33e-11 * 2.4**loc[2], 1.45e-11 * 2.4**loc[3]])
-    mags = np.random.normal(loc=loc, scale=scale, size=4)
-    return np.array([m, mags[0], mags[1], mags[2], mags[3]])
+    # Determines the magnitude corresponding to the point on the isochrone closest in mass to the chosen mass  
+    loc=np.array([10**(-.4 * mag4[np.argmin(np.abs(m - mass))]), 10**(-.4 * mag5[np.argmin(np.abs(m - mass))]), 
+                      10**(-.4 * mag6[np.argmin(np.abs(m - mass))]), 10**(-.4 * mag8[np.argmin(np.abs(m - mass))])])
+    scale=np.array([1.9e-12 + .02 * loc[0], 2.95e-12 + .02 * loc[1], 3.25e-12 + .02 * loc[2], 3.65e-12 + .02 * loc[3]])
+    fluxs = np.random.normal(loc=loc, scale=scale, size=4)
+    # Computes signal to noise ratio, to be used in selecting observable stars
+    N = np.sqrt(1/(scale[0]**-2 + scale[1]**-2 + scale[2]**-2 + scale[3]**-2))
+    SN = N * (fluxs[0]/scale[0]**2 + fluxs[1]/scale[1]**2 + fluxs[2]/scale[2]**2 + fluxs[3]/scale[3]**2)
+    return np.array([m, SN, fluxs[0], fluxs[1], fluxs[2], fluxs[3]])
 
 
 """ This function generates a set of false stars using the errors in magnitude and distance, assuming normal
@@ -135,13 +138,18 @@ def False_Stars_CChi(reddening, age):
     temp = 0 # This will hold the cumulative difference in magnitdue between the stars and isochrone
     phys_dist_temp = 0 # This will hold the comulative phyical distance between the stars and the SN position
     for x in range(False_stars.shape[0]):
-        # Generates stars with randomly drawn mass, then finds corresponding magnitude in each filter
-        False_stars[x,0], False_stars[x,2], False_stars[x,3], False_stars[x,4], False_stars[x,5] = Random_mass_mag(
+        # Generates stars with randomly drawn mass, then finds corresponding flux in each filter
+        False_stars[x,0], SN, False_stars[x,2], False_stars[x,3], False_stars[x,4], False_stars[x,5] = Random_mass_mag(
             mass, mag_435, mag_555, mag_625, mag_814)
-        # Checks to make sure that the magnitude in each filter is above some limiting magnitude.
-        while (False_stars[x,2] > 30) or (False_stars[x,3] > 30) or (False_stars[x,4] > 30) or (False_stars[x,5] > 30):
-            False_stars[x,0], False_stars[x,2], False_stars[x,3], False_stars[x,4], False_stars[x,5] = Random_mass_mag(
-                mass, mag_435, mag_555, mag_625, mag_814)
+        # Checks to make sure that the S/N ratio is high enough, and there is positive flux in each filter
+        while (SN < 3) or (False_stars[x,2] < 0) or (False_stars[x,3] < 0) or (False_stars[x,4] < 0) or (False_stars[x,5] < 0):
+            False_stars[x,0], SN, False_stars[x,2], False_stars[x,3], False_stars[x,4], False_stars[x,5] = Random_mass_mag(
+            mass, mag_435, mag_555, mag_625, mag_814)
+        # Converts from flux to magnitude in each filter
+        False_stars[x,2] = -2.5 * np.log10(False_stars[x,2])
+        False_stars[x,3] = -2.5 * np.log10(False_stars[x,3])
+        False_stars[x,4] = -2.5 * np.log10(False_stars[x,4])
+        False_stars[x,5] = -2.5 * np.log10(False_stars[x,5])
     
         # Samples radial distribution to get radial distance from SN
         sigma = .92 * 10000000 * 3.15e7 * (360 * 60 * 60)/(2 * np.pi) * 1/(distance * 3.086e13 * .05) #10**age
@@ -169,7 +177,7 @@ df = isochrones[metallicity] # Sets metallicity. Eventually this will be varied 
 ages = np.array(list(set(df.log10_isochrone_age_yr)))
 ages.sort()
 age_cmd = {}
-ages = ages[(ages >= 6.5) & (ages <= 8.5)] # Sets ages to consider.
+ages = ages[(ages > 6.49) & (ages < 8.51)] # Sets ages to consider.
 
 Gal_ext = 0 # Sets extinction. Eventually this will be varied over
 
