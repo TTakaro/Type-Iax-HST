@@ -152,7 +152,7 @@ def False_Stars_CChi(reddening, age):
         False_stars[x,5] = -2.5 * np.log10(False_stars[x,5])
     
         # Samples radial distribution to get radial distance from SN
-        sigma = .92 * 10000000 * 3.15e7 * (360 * 60 * 60)/(2 * np.pi) * 1/(distance * 3.086e13 * .05) #10**age
+        sigma = .92 * 10**age * 3.15e7 * (360 * 60 * 60)/(2 * np.pi) * 1/(distance * 3.086e13 * .05) #10**age
         # Adds in inherent spread in star position at formation with the 100 * rand.rand()
         False_stars[x,1] = abs(np.random.normal(loc=0, scale=sigma)) + 100 * np.random.random()
     
@@ -184,6 +184,7 @@ Gal_ext = 0 # Sets extinction. Eventually this will be varied over
 CChi_false = np.zeros([2,ages.size,5000]) # First dimension is age, CChi; Second is varying age; Third is MC runs
 CChi = np.zeros([2,5000])
 
+masses = []
 # Generates false stars and applies a CChi test 1000 times to get a distribution of values
 for i, age in enumerate(ages):
     CChi_false[0,i,:] = age
@@ -195,6 +196,7 @@ for i, age in enumerate(ages):
         pool.close()
         out = "CChi_false_{Age}".format(Age=np.round(age,decimals=2)) # Saves each age separately
         np.save(out, CChi)
+
     CChi_false[1,i,:] = CChi[1,:]
 
 
