@@ -15,7 +15,7 @@ from functools import partial
 if len(sys.argv) > 1: # Checks for any command line arguments
     if str(sys.argv[1]) == '08ha':
         print("Running with SN 2008ha parameters.")
-        nstars = 24
+        nstars = 26
         distance = 21.81e6
         distance_error = 1.53e6
         F435W_ext = 0.283 # extinction in F435W in UGC 12682 from NED
@@ -25,7 +25,7 @@ if len(sys.argv) > 1: # Checks for any command line arguments
         metallicity = -0.50
     if str(sys.argv[1]) == '10ae':
         print("Running with SN 2010ae parameters.")
-        nstars = 28
+        nstars = 29
         distance = 11.0873e6
         distance_error = 1.02266e6
         F435W_ext = .509 # extinction in F435W in ESO 162-17 from NED
@@ -44,7 +44,7 @@ if len(sys.argv) > 1: # Checks for any command line arguments
         F814W_ext = .014 # extinction in F814W in NGC 1566 from NED
         metallicity = 0.50
 else: # If no arguments given, uses the arguments for SN 2008ha
-    nstars = 24
+    nstars = 26
     distance = 21.81e6
     distance_error = 1.53e6
     F435W_ext = 0.283 # extinction in F435W in UGC 12682 from NED
@@ -156,17 +156,12 @@ def False_Stars_CChi(reddening, age):
         False_stars[x,0], SN, False_stars[x,2], False_stars[x,3], False_stars[x,4], False_stars[x,5] = Random_mass_mag(
             mass, mag_435, mag_555, mag_625, mag_814)
         # Checks to make sure that the S/N ratio is high enough, and there is positive flux in each filter
-        while (SN < 3) or (False_stars[x,2] < 0) or (False_stars[x,3] < 0) or (False_stars[x,4] < 0) or (False_stars[x,5] < 0):
+        while SN < 3:
             False_stars[x,0], SN, False_stars[x,2], False_stars[x,3], False_stars[x,4], False_stars[x,5] = Random_mass_mag(
             mass, mag_435, mag_555, mag_625, mag_814)
-        # Converts from flux to magnitude in each filter
-        False_stars[x,2] = -2.5 * np.log10(False_stars[x,2])
-        False_stars[x,3] = -2.5 * np.log10(False_stars[x,3])
-        False_stars[x,4] = -2.5 * np.log10(False_stars[x,4])
-        False_stars[x,5] = -2.5 * np.log10(False_stars[x,5])
     
         # Samples radial distribution to get radial distance from SN
-        sigma = .92 * 10**age * 3.15e7 * (360 * 60 * 60)/(2 * np.pi) * 1/(distance * 3.086e13 * .05) #10000000
+        sigma = .92 * 10**age * 3.15e7 * (360 * 60 * 60)/(2 * np.pi) * 1/(distance * 3.086e13 * .05) #10**age
         # Adds in inherent spread in star position at formation with the .1 * rand.rand()
         False_stars[x,1] = abs(np.random.normal(loc=0, scale=sigma)) + .1 * np.random.random()
     
@@ -179,8 +174,9 @@ def False_Stars_CChi(reddening, age):
         phys_dist_temp += phys_dist_weight # Will be used to compute average of the weights
 
         # Adds the magnitude difference for each data point in quadrature.
-        temp = temp + (phys_dist_weight * np.amin(np.sqrt((False_stars[x,2] - mag_435)**2
-          + (False_stars[x,3] - mag_555)**2 + (False_stars[x,4] - mag_625)**2 + (False_stars[x,5] - mag_814)**2)))**2
+        temp += (phys_dist_weight * np.amin(np.sqrt((False_stars[x,2] - 10**(-.4*mag_435))**2
+          + (False_stars[x,3] - 10**(-.4*mag_555))**2 + (False_stars[x,4] - 10**(-.4*mag_625))**2
+          + (False_stars[x,5] - 10**(-.4*mag_814))**2)))**2
     phys_dist_temp /= False_stars.shape[0]
     return np.sqrt(temp)/phys_dist_temp
 
@@ -198,6 +194,7 @@ Gal_ext = 0 # Sets extinction. Eventually this will be varied over
 CChi_false = np.zeros([2,ages.size,5000]) # First dimension is age, CChi; Second is varying age; Third is MC runs
 CChi = np.zeros([2,5000])
 
+masses = []
 # Generates false stars and applies a CChi test 1000 times to get a distribution of values
 for i, age in enumerate(ages):
     CChi_false[0,i,:] = age
@@ -210,6 +207,7 @@ for i, age in enumerate(ages):
         pool.close()
         out = "CChi_false_{Age}".format(Age=np.round(age,decimals=2)) # Saves each age separately
         np.save(out, CChi)
+
     CChi_false[1,i,:] = CChi[1,:]
 
 
