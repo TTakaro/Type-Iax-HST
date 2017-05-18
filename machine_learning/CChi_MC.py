@@ -15,7 +15,7 @@ from functools import partial
 if len(sys.argv) > 1: # Checks for any command line arguments
     if str(sys.argv[1]) == '08ha':
         print("Running with SN 2008ha parameters.")
-        nstars = 24
+        nstars = 15
         distance = 21.81e6
         distance_error = 1.53e6
         F435W_ext = 0.283 # extinction in F435W in UGC 12682 from NED
@@ -23,6 +23,7 @@ if len(sys.argv) > 1: # Checks for any command line arguments
         F625W_ext = 0.174 # extinction in F625W in UGC 12682 from NED
         F814W_ext = 0.120 # extinction in F814W in UGC 12682 from NED
         metallicity = -0.50
+        red = False # Is there assumed internal reddening?
     if str(sys.argv[1]) == '10ae':
         print("Running with SN 2010ae parameters.")
         nstars = 28
@@ -33,9 +34,13 @@ if len(sys.argv) > 1: # Checks for any command line arguments
         F625W_ext = .313 # extinction in F625W in ESO 162-17 from NED
         F814W_ext = .215 # extinction in F814W in ESO 162-17 from NED
         metallicity = -0.75
+        red = True # Is there assumed internal reddening?
+        reddening = .50
+        red_upper = .92
+        red_lower = .18
     if str(sys.argv[1]) == '10el':
         print("Running with SN 2010el parameters.")
-        nstars = 50 # THIS IS WRONG!
+        nstars = 100
         distance = 5.63e6
         distance_error = 1.09e6
         F435W_ext = 0.033 # extinction in F435W in NGC 1566 from NED
@@ -43,8 +48,9 @@ if len(sys.argv) > 1: # Checks for any command line arguments
         F625W_ext = .021 # extinction in F625W in NGC 1566 from NED
         F814W_ext = .014 # extinction in F814W in NGC 1566 from NED
         metallicity = 0.50
+        red = False # Is there assumed internal reddening?
 else: # If no arguments given, uses the arguments for SN 2008ha
-    nstars = 24
+    nstars = 15
     distance = 21.81e6
     distance_error = 1.53e6
     F435W_ext = 0.283 # extinction in F435W in UGC 12682 from NED
@@ -52,6 +58,7 @@ else: # If no arguments given, uses the arguments for SN 2008ha
     F625W_ext = 0.174 # extinction in F625W in UGC 12682 from NED
     F814W_ext = 0.120 # extinction in F814W in UGC 12682 from NED
     metallicity = -0.50
+    red = False
 
 
 #################### Sets Up Variables for Pulling From Isochrones ######################
@@ -115,14 +122,16 @@ def Random_mass_mag(mass, mag4, mag5, mag6, mag8):
     elif str(sys.argv[1]) == '10ae':
         scale=np.array([2.2e-12 + 1.9e-7*np.sqrt(loc[0]), 3.2e-12 + 2.3e-7*np.sqrt(loc[1]), 3.9e-12 + 2.1e-7*np.sqrt(loc[2]),
                         4.8e-12 + 2.25e-7*np.sqrt(loc[3])])
-    elif str(sys.argv[1]) == '10el': # Fix this
-        scale=np.array([2.2e-12 + 1.9e-7*np.sqrt(loc[0]), 3.2e-12 + 2.3e-7*np.sqrt(loc[1]), 3.9e-12 + 2.1e-7*np.sqrt(loc[2]),
-                        4.8e-12 + 2.25e-7*np.sqrt(loc[3])])
+    elif str(sys.argv[1]) == '10el':
+        scale=np.array([2.6e-12 + 2e-7*np.sqrt(loc[0]), 4.7e-12 + 2.2e-7*np.sqrt(loc[1]), 5e-12 + 2.3e-7*np.sqrt(loc[2]),
+                        6.2e-12 + 2.2e-7*np.sqrt(loc[3])])
     fluxs = np.random.normal(loc=loc, scale=scale, size=4)
-    # Computes signal to noise ratio, to be used in selecting observable stars
+    # Computes signal to noise ratio, to be used in selecting observable stars. SN is overall S/N ratio
     N = np.sqrt(1/(scale[0]**-2 + scale[1]**-2 + scale[2]**-2 + scale[3]**-2))
     SN = N * (fluxs[0]/scale[0]**2 + fluxs[1]/scale[1]**2 + fluxs[2]/scale[2]**2 + fluxs[3]/scale[3]**2)
-    return np.array([m, SN, fluxs[0], fluxs[1], fluxs[2], fluxs[3]])
+    # SN2 is the maximum S/N ratio in a single band
+    SN2 = np.amax([fluxs[0]/scale[0], fluxs[1]/scale[1], fluxs[2]/scale[2], fluxs[3]/scale[3]])
+    return np.array([m, SN, SN2, fluxs[0], fluxs[1], fluxs[2], fluxs[3]])
 
 
 """ This function generates a set of false stars using the errors in magnitude and distance, assuming normal
@@ -153,12 +162,14 @@ def False_Stars_CChi(reddening, age):
     phys_dist_temp = 0 # This will hold the comulative phyical distance between the stars and the SN position
     for x in range(False_stars.shape[0]):
         # Generates stars with randomly drawn mass, then finds corresponding flux in each filter
-        False_stars[x,0], SN, False_stars[x,2], False_stars[x,3], False_stars[x,4], False_stars[x,5] = Random_mass_mag(
-            mass, mag_435, mag_555, mag_625, mag_814)
+        False_stars[x,0], SN, SN2, False_stars[x,2], False_stars[x,3], False_stars[x,4], False_stars[x,5] = (
+            Random_mass_mag(mass, mag_435, mag_555, mag_625, mag_814))
         # Checks to make sure that the S/N ratio is high enough, and there is positive flux in each filter
-        while (SN < 3) or (False_stars[x,2] < 0) or (False_stars[x,3] < 0) or (False_stars[x,4] < 0) or (False_stars[x,5] < 0):
-            False_stars[x,0], SN, False_stars[x,2], False_stars[x,3], False_stars[x,4], False_stars[x,5] = Random_mass_mag(
-            mass, mag_435, mag_555, mag_625, mag_814)
+        while ((SN < 3.5) or (SN2 < 2.5) or (False_stars[x,2] < 0) or (False_stars[x,3] < 0)
+               or (False_stars[x,4] < 0) or (False_stars[x,5] < 0)):
+            False_stars[x,0], SN, SN2, False_stars[x,2], False_stars[x,3], False_stars[x,4], False_stars[x,5] = (
+                Random_mass_mag(mass, mag_435, mag_555, mag_625, mag_814))
+
         # Converts from flux to magnitude in each filter
         False_stars[x,2] = -2.5 * np.log10(False_stars[x,2])
         False_stars[x,3] = -2.5 * np.log10(False_stars[x,3])
@@ -166,21 +177,23 @@ def False_Stars_CChi(reddening, age):
         False_stars[x,5] = -2.5 * np.log10(False_stars[x,5])
     
         # Samples radial distribution to get radial distance from SN
-        sigma = .92 * 10**age * 3.15e7 * (360 * 60 * 60)/(2 * np.pi) * 1/(distance * 3.086e13 * .05) #10000000
-        # Adds in inherent spread in star position at formation with the .1 * rand.rand()
-        False_stars[x,1] = abs(np.random.normal(loc=0, scale=sigma)) + .1 * np.random.random()
+        sigma = (.92 * 10**age * 3.15e7 * 206265)/(dist * 3.086e13 * .05) #10000000
+        flat = (100 * 206265)/(dist * .05) # 100 parsecs in pixels
+        flat_int = int(np.round(flat*5))
+        # Adds in inherent spread in star position at formation with the of 100 parsecs
+        False_stars[x,1] = abs(np.random.normal(loc=0, scale=sigma)) + flat * np.random.random()
     
         # Now, determine Crappy Chi-squared fit
         # Convolves a normal distribution with a flat distribution to get distribution used above to generate radius
-        weight_func = np.convolve(1/(np.sqrt(2 * np.pi) * sigma) * np.exp(- np.linspace(-2,2,1000)**2/(2 * sigma**2)),
-                                 np.append(np.zeros(488),np.append(np.ones(25),np.zeros(487))))
+        weight_func = np.convolve(1/(np.sqrt(2 * np.pi) * sigma) * np.exp(- np.linspace(-100,100,1000)**2/(2 * sigma**2)),
+               np.append(np.zeros(int(np.ceil((1000-flat_int)/2))),np.append(np.ones(flat_int),np.zeros(int(np.floor((1000-flat_int)/2))))))
         # Finds where in the convolved array the generated radius falls
-        phys_dist_weight = weight_func[1000 + int(False_stars[x,1]*2.5)]
+        phys_dist_weight = weight_func[1000 + int(False_stars[x,1]*5)]
         phys_dist_temp += phys_dist_weight # Will be used to compute average of the weights
 
         # Adds the magnitude difference for each data point in quadrature.
-        temp = temp + (phys_dist_weight * np.amin(np.sqrt((False_stars[x,2] - mag_435)**2
-          + (False_stars[x,3] - mag_555)**2 + (False_stars[x,4] - mag_625)**2 + (False_stars[x,5] - mag_814)**2)))**2
+        temp +=(phys_dist_weight * np.amin(np.sqrt((False_stars[x,2] - mag_435)**2 + (False_stars[x,3] - mag_555)**2
+               + (False_stars[x,4] - mag_625)**2 + (False_stars[x,5] - mag_814)**2)))**2
     phys_dist_temp /= False_stars.shape[0]
     return np.sqrt(temp)/phys_dist_temp
 
@@ -193,25 +206,42 @@ ages.sort()
 age_cmd = {}
 ages = ages[(ages > 6.49) & (ages < 8.51)] # Sets ages to consider.
 
-Gal_ext = 0 # Sets extinction. Eventually this will be varied over
-
 CChi_false = np.zeros([2,ages.size,5000]) # First dimension is age, CChi; Second is varying age; Third is MC runs
 CChi = np.zeros([2,5000])
 
 # Generates false stars and applies a CChi test 1000 times to get a distribution of values
-for i, age in enumerate(ages):
-    CChi_false[0,i,:] = age
-    func = partial(False_Stars_CChi, 0)
-    if __name__ == '__main__':
-        pool = mp.Pool(os.cpu_count())
-        print("Working on age={Age}".format(Age=np.round(age,decimals=2)))
-        results = pool.map(func, age * np.ones(5000))
-        CChi[1,:] = list(results)
-        pool.close()
-        out = "CChi_false_{Age}".format(Age=np.round(age,decimals=2)) # Saves each age separately
-        np.save(out, CChi)
-    CChi_false[1,i,:] = CChi[1,:]
+cont = True # Variable used for halting when generating stars takes too long
+if red == False:
+    for i, age in enumerate(ages):
+        CChi_false[0,i,:] = age
+        if __name__ == '__main__':
+            pool = mp.Pool(os.cpu_count())
+            print("Working on age={Age}".format(Age=np.round(age,decimals=2)))
+            func = partial(False_Stars_CChi, 0)
+            results = pool.map(func, age * np.ones(5000))
+            CChi[1,:] = list(results)
+            pool.close()
+            out = "CChi_false_{Age}".format(Age=np.round(age,decimals=2)) # Saves each age separately
+            np.save(out, CChi)
+        CChi_false[1,i,:] = CChi[1,:]
+    outfile = "CChi_false_ages" # Saves all ages together
+    np.save(outfile, CChi_false)
 
+else:
+    for j in range(10):
+        red_temp = red_lower + j * (1/9) * (red_upper - red_lower)
+        for i, age in enumerate(ages):
+            CChi_false[0,i,:] = age
+            func = partial(False_Stars_CChi, red_temp) # Turns False_Stars into a single parameter function
+            if __name__ == '__main__':
+                pool = mp.Pool(os.cpu_count())
+                print("Working on age={Age}".format(Age=np.round(age,decimals=2)))
+                results = pool.map(func, age * np.ones(5000)) # Applies a set of 5000 ages (all the same) to False_Stars
+                CChi[1,:] = list(results)
+                pool.close()
+                out = "CChi_false_{Age}_{Red}".format(Age=np.round(age,decimals=2), Red=red_temp) # Saves each age separately
+                np.save(out, CChi)
+            CChi_false[1,i,:] = CChi[1,:]
+        outfile = "CChi_false_ages_{Red}".format(Red=red_temp) # Saves all ages together
+        np.save(outfile, CChi_false)
 
-outfile = "CChi_false_ages" # Saves all ages together
-np.save(outfile, CChi_false)
