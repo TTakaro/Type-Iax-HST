@@ -141,10 +141,22 @@ def Random_mass_mag(mass, mag4, mag5, mag6, mag8):
     be very careful (just don't) using this function outside of the bounds of this script.
 """
 def False_Stars_CChi(reddening, age):
+    global cont
+    if cont == False:
+        return np.inf
     np.random.seed()
     # Chooses distance using gaussian with errors from literature
     dist = np.random.normal(loc=distance, scale=distance_error)
     dist_adjust = 5 * (np.log10(dist) - 1) # Converts distance to a magnitude adjustment
+    flat = (100 * 206265)/(dist * .05) # 100 parsecs in pixels
+    flat_int = int(np.round(flat*5))
+    while (flat_int < 0) or (flat_int >= 2000):
+            dist = np.random.normal(loc=distance, scale=distance_error)
+            dist_adjust = 5 * (np.log10(dist) - 1)
+            a = flat_int
+            flat = (100 * 206265)/(dist * .05)
+            flat_int = int(np.round(5 * flat))
+            print("Was ", a, "but is now ", flat_int)
 
     idx = df.log10_isochrone_age_yr == age
     mass = df[idx].initial_mass
@@ -164,23 +176,25 @@ def False_Stars_CChi(reddening, age):
         False_stars[x,0], SN, SN2, False_stars[x,2], False_stars[x,3], False_stars[x,4], False_stars[x,5] = (
             Random_mass_mag(mass, mag_435, mag_555, mag_625, mag_814))
         # Checks to make sure that the S/N ratio is high enough, and there is positive flux in each filter
+        t = time.time()
         while (SN < 3.5) or (SN2 < 2.5):
             False_stars[x,0], SN, SN2, False_stars[x,2], False_stars[x,3], False_stars[x,4], False_stars[x,5] = (
                 Random_mass_mag(mass, mag_435, mag_555, mag_625, mag_814))
+            if time.time() - t > 10:
+                cont = False
+                return np.inf
     
         # Samples radial distribution to get radial distance from SN
         sigma = (.92 * 10**age * 3.15e7 * 206265)/(dist * 3.086e13 * .05) #10000000
-        flat = (100 * 206265)/(dist * .05) # 100 parsecs in pixels
-        flat_int = int(np.round(flat*5))
         # Adds in inherent spread in star position at formation with the of 100 parsecs
         False_stars[x,1] = abs(np.random.normal(loc=0, scale=sigma)) + flat * np.random.random()
     
         # Now, determine Crappy Chi-squared fit
         # Convolves a normal distribution with a flat distribution to get distribution used above to generate radius
-        weight_func = np.convolve(1/(np.sqrt(2 * np.pi) * sigma) * np.exp(- np.linspace(-100,100,1000)**2/(2 * sigma**2)),
-               np.append(np.zeros(int(np.ceil((1000-flat_int)/2))),np.append(np.ones(flat_int),np.zeros(int(np.floor((1000-flat_int)/2))))))
+        weight_func = np.convolve(1/(np.sqrt(2 * np.pi) * sigma) * np.exp(- np.linspace(-200,200,2000)**2/(2 * sigma**2)),
+               np.append(np.zeros(int(np.ceil((2000-flat_int)/2))),np.append(np.ones(flat_int),np.zeros(int(np.floor((2000-flat_int)/2))))))
         # Finds where in the convolved array the generated radius falls
-        phys_dist_weight = weight_func[1000 + int(False_stars[x,1]*5)]
+        phys_dist_weight = weight_func[2000 + int(False_stars[x,1]*5)]
         phys_dist_temp += phys_dist_weight # Will be used to compute average of the weights
 
         # Adds the magnitude difference for each data point in quadrature.
@@ -199,13 +213,11 @@ ages.sort()
 age_cmd = {}
 ages = ages[(ages > 6.49) & (ages < 8.51)] # Sets ages to consider.
 
-Gal_ext = 0 # Sets extinction. Eventually this will be varied over
-
 CChi_false = np.zeros([2,ages.size,5000]) # First dimension is age, CChi; Second is varying age; Third is MC runs
 CChi = np.zeros([2,5000])
 
-
 # Generates false stars and applies a CChi test 1000 times to get a distribution of values
+cont = True # Variable used for halting when generating stars takes too long
 if red == False:
     for i, age in enumerate(ages):
         CChi_false[0,i,:] = age
@@ -213,7 +225,7 @@ if red == False:
             pool = mp.Pool(os.cpu_count())
             print("Working on age={Age}".format(Age=np.round(age,decimals=2)))
             func = partial(False_Stars_CChi, 0)
-            results = pool.map(func, age * np.ones(5000))
+            results = pool.map_async(func, age * np.ones(5000)).get()
             CChi[1,:] = list(results)
             pool.close()
             out = "CChi_false_{Age}".format(Age=np.round(age,decimals=2)) # Saves each age separately
@@ -231,7 +243,8 @@ else:
             if __name__ == '__main__':
                 pool = mp.Pool(os.cpu_count())
                 print("Working on age={Age}".format(Age=np.round(age,decimals=2)))
-                results = pool.map(func, age * np.ones(5000)) # Applies a set of 5000 ages (all the same) to False_Stars
+                func = partial(False_Stars_CChi, 0)
+                results = pool.map_async(func, age * np.ones(5000)).get()
                 CChi[1,:] = list(results)
                 pool.close()
                 out = "CChi_false_{Age}_{Red}".format(Age=np.round(age,decimals=2), Red=red_temp) # Saves each age separately
