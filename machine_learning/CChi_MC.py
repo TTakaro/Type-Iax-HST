@@ -2,7 +2,6 @@ import os
 import sys
 import glob
 import platform
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas
 import scipy.integrate as integrate
@@ -25,6 +24,8 @@ if len(sys.argv) > 1: # Checks for any command line arguments
         F814W_ext = 0.120 # extinction in F814W in UGC 12682 from NED
         metallicity = -0.50
         red = False # Is there assumed internal reddening?
+        new_dir = "MC_08ha_MagFit_{date}".format(date=np.round(time.time())) # Sets up directory for saving into
+        os.makedirs(new_dir)
     if str(sys.argv[1]) == '10ae':
         print("Running with SN 2010ae parameters.")
         nstars = 28
@@ -39,6 +40,8 @@ if len(sys.argv) > 1: # Checks for any command line arguments
         reddening = .50
         red_upper = .92
         red_lower = .18
+        new_dir = "MC_10ae_MagFit_{date}".format(date=np.round(time.time())) # Sets up directory for saving into
+        os.makedirs(new_dir)
     if str(sys.argv[1]) == '10el':
         print("Running with SN 2010el parameters.")
         nstars = 100
@@ -50,6 +53,8 @@ if len(sys.argv) > 1: # Checks for any command line arguments
         F814W_ext = .014 # extinction in F814W in NGC 1566 from NED
         metallicity = 0.50
         red = False # Is there assumed internal reddening?
+        new_dir = "MC_10el_MagFit_{date}".format(date=np.round(time.time())) # Sets up directory for saving into
+        os.makedirs(new_dir)
 else: # If no arguments given, uses the arguments for SN 2008ha
     nstars = 15
     distance = 21.81e6
@@ -69,6 +74,8 @@ if platform.system() == "Darwin":
     mist_dir = "/Users/tktakaro/Documents/Type-Iax-HST/MIST_v1.0_HST_ACSWF"
 if platform.system() == "Windows":
     mist_dir = "C:/Users/Tyler/Documents/9. UCSC/Research/Type-Iax-HST-master/MIST_v1.0_HST_ACSWF"
+else:
+    mist_dir = "/home/ttakaro/Type-Iax-HST/MIST_v1.0_HST_ACSWF"
 
 kwargs = {"names": ["EEP", "log10_isochrone_age_yr", "initial_mass", "log_Teff", "log_g",
                     "log_L", "z_surf", "ACS_WFC_F435W", "ACS_WFC_F475W", "ACS_WFC_F502N",
@@ -152,7 +159,7 @@ def False_Stars_CChi(reddening, age):
     dist_adjust = 5 * (np.log10(dist) - 1) # Converts distance to a magnitude adjustment
     flat = (100 * 206265)/(dist * .05) # 100 parsecs in pixels
     flat_int = int(np.round(flat*5))
-    while (flat_int < 0) or (flat_int >= 2000):
+    while (flat_int < 0) or (flat_int >= 2000): # Checks to make sure distance isn't so crazy it'll cause errors
             dist = np.random.normal(loc=distance, scale=distance_error)
             dist_adjust = 5 * (np.log10(dist) - 1)
             a = flat_int
@@ -194,7 +201,7 @@ def False_Stars_CChi(reddening, age):
         False_stars[x,5] = -2.5 * np.log10(False_stars[x,5])
     
         # Samples radial distribution to get radial distance from SN
-        sigma = (.92 * 10**age * 3.15e7 * 206265)/(dist * 3.086e13 * .05) #10000000
+        sigma = 5 * (.92 * 10**age * 3.15e7 * 206265)/(dist * 3.086e13 * .05) # 5 times, as weight_func is spaced with 5 spots per pixel
         # Adds in inherent spread in star position at formation with the of 100 parsecs
         False_stars[x,1] = abs(np.random.normal(loc=0, scale=sigma)) + flat * np.random.random()
     
@@ -203,7 +210,8 @@ def False_Stars_CChi(reddening, age):
         weight_func = np.convolve(1/(np.sqrt(2 * np.pi) * sigma) * np.exp(- np.linspace(-200,200,2000)**2/(2 * sigma**2)),
                np.append(np.zeros(int(np.ceil((2000-flat_int)/2))),np.append(np.ones(flat_int),np.zeros(int(np.floor((2000-flat_int)/2))))))
         # Finds where in the convolved array the generated radius falls
-        phys_dist_weight = weight_func[2000 + int(False_stars[x,1]*5)]
+        try: phys_dist_weight = weight_func[1999 + int(False_stars[x,1]*5)]
+        except IndexError: phys_dist_weight = weight_func[weight_func.size - 1]
         phys_dist_temp += phys_dist_weight # Will be used to compute average of the weights
 
         # Adds the magnitude difference for each data point in quadrature.
@@ -236,10 +244,10 @@ if red == False:
             results = pool.map_async(func, age * np.ones(5000)).get()
             CChi[1,:] = list(results)
             pool.close()
-            out = "CChi_false_{Age}".format(Age=np.round(age,decimals=2)) # Saves each age separately
+            out = "{Dir}/CChi_false_{Age}".format(Dir=new_dir, Age=np.round(age,decimals=2)) # Saves each age separately
             np.save(out, CChi)
         CChi_false[1,i,:] = CChi[1,:]
-    outfile = "CChi_false_ages" # Saves all ages together
+    outfile = "{Dir}/CChi_false_ages".format(Dir=new_dir) # Saves all ages together
     np.save(outfile, CChi_false)
 
 else:
@@ -255,9 +263,9 @@ else:
                 results = pool.map_async(func, age * np.ones(5000)).get()
                 CChi[1,:] = list(results)
                 pool.close()
-                out = "CChi_false_{Age}_{Red}".format(Age=np.round(age,decimals=2), Red=red_temp) # Saves each age separately
+                out = "{Dir}/CChi_false_{Age}_{Red}".format(Dir=new_dir, Age=np.round(age,decimals=2), Red=np.round(red_temp,decimals=2)) # Saves each age separately
                 np.save(out, CChi)
             CChi_false[1,i,:] = CChi[1,:]
-        outfile = "CChi_false_ages_{Red}".format(Red=red_temp) # Saves all ages together
+        outfile = "{Dir}/CChi_false_ages_{Red}".format(Dir=new_dir, Red=np.round(red_temp,decimals=2)) # Saves all ages together
         np.save(outfile, CChi_false)
 
