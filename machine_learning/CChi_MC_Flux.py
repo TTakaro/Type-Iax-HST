@@ -2,12 +2,12 @@ import os
 import sys
 import glob
 import platform
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas
 import scipy.integrate as integrate
 import multiprocessing as mp
 from functools import partial
+import time
 
 
 ############################## Command Line Arguments ##############################
@@ -71,7 +71,7 @@ else: # If no arguments given, uses the arguments for SN 2008ha
 # Checks operating system, to adjust filesystem to work on both.
 if platform.system() == "Darwin":
     mist_dir = "/Users/tktakaro/Documents/Type-Iax-HST/MIST_v1.0_HST_ACSWF"
-if platform.system() == "Windows":
+elif platform.system() == "Windows":
     mist_dir = "C:/Users/Tyler/Documents/9. UCSC/Research/Type-Iax-HST-master/MIST_v1.0_HST_ACSWF"
 else:
     mist_dir = "/home/ttakaro/Type-Iax-HST/MIST_v1.0_HST_ACSWF"
@@ -252,7 +252,6 @@ else:
             if __name__ == '__main__':
                 pool = mp.Pool(os.cpu_count())
                 print("Working on age={Age}".format(Age=np.round(age,decimals=2)))
-                func = partial(False_Stars_CChi, 0)
                 results = pool.map_async(func, age * np.ones(5000)).get()
                 CChi[1,:] = list(results)
                 pool.close()
