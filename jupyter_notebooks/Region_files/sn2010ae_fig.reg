@@ -1,0 +1,17 @@
+# Region file format: DS9 version 4.1
+global color=green dashlist=8 3 width=1 font="helvetica 10 normal roman" select=1 highlite=1 dash=0 fixed=0 edit=1 move=1 delete=1 include=1 source=1
+physical
+point(1760.5,1889.61) # point=circle 40 color=red width=4 tag={Stars}
+point(1752.26,1901.28) # point=circle 40 width=4 tag={Stars}
+point(1762.66,1915.53) # point=circle 40 width=4 tag={Stars}
+point(1781.31,1882.64) # point=circle 40 color=red width=4 tag={Stars}
+point(1787.02,1837.24) # point=circle 40 color=cyan width=4 tag={Stars}
+point(1811.56,1895.77) # point=circle 40 width=4 tag={Stars}
+point(1815.76,1956) # point=circle 40 color=cyan width=4 tag={Stars}
+point(1782.96,1957.36) # point=circle 40 color=cyan width=4 tag={Stars}
+point(1723.51,1902.48) # point=circle 40 color=cyan width=4 tag={Stars}
+point(1795.04,1958.19) # point=circle 40 color=cyan width=4 tag={Stars}
+point(1835.97,1933.96) # point=circle 40 color=cyan width=4 tag={Stars}
+line(1776.7282,1863.3493,1776.7282,1893.3493) # line=0 0 color=red width=4
+line(1743.7282,1896.3493,1773.7282,1896.3493) # line=0 0 color=red width=4
+circle(1776.7282,1896.3493,74.6) # color=yellow width=4

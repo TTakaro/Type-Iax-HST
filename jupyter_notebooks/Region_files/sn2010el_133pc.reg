@@ -1,0 +1,125 @@
+# Region file format: DS9 version 4.1
+global color=green dashlist=8 3 width=1 font="helvetica 10 normal roman" select=1 highlite=1 dash=0 fixed=0 edit=1 move=1 delete=1 include=1 source=1
+physical
+point(2344.8,1535.14) # point=boxcircle color=yellow
+point(2413.85,1611.64) # point=boxcircle color=yellow
+point(2372.35,1486.89) # point=boxcircle
+point(2398.83,1621.52) # point=boxcircle color=yellow
+point(2375.91,1626.03) # point=boxcircle color=yellow
+point(2424.09,1638.76) # point=boxcircle color=yellow
+point(2382.55,1486.15) # point=boxcircle color=yellow
+point(2409.23,1497.15) # point=boxcircle color=yellow
+point(2388.27,1480.94) # point=boxcircle color=yellow
+point(2473.56,1506.04) # point=boxcircle color=yellow
+point(2352.02,1554.41) # point=boxcircle color=yellow
+point(2383.67,1494.24) # point=boxcircle color=yellow
+point(2355.6,1513.48) # point=boxcircle color=yellow
+point(2441.22,1519.66) # point=boxcircle color=yellow
+point(2369.66,1627.93) # point=boxcircle color=yellow
+point(2504.24,1579.39) # point=boxcircle color=yellow
+point(2409.73,1617.61) # point=boxcircle color=yellow
+point(2459.12,1526.54) # point=boxcircle color=yellow
+point(2424.91,1607.15) # point=boxcircle color=yellow
+point(2390.47,1523.91) # point=boxcircle color=yellow
+point(2496.47,1598.34) # point=boxcircle color=yellow
+point(2345.37,1587.5) # point=boxcircle color=yellow
+point(2395.78,1587.48) # point=boxcircle color=yellow
+point(2385.2,1497.81) # point=boxcircle color=yellow
+point(2380.23,1657.09) # point=boxcircle color=yellow
+point(2404.24,1502.33) # point=boxcircle color=yellow
+point(2371.94,1549.82) # point=boxcircle color=yellow
+point(2420.31,1668.65) # point=boxcircle color=yellow
+point(2370.92,1511.54) # point=boxcircle color=yellow
+point(2328.39,1532.43) # point=boxcircle color=yellow
+point(2374.9,1553.86) # point=boxcircle color=yellow
+point(2453.8,1490.5) # point=boxcircle color=yellow
+point(2467.42,1504.23) # point=boxcircle color=yellow
+point(2331.88,1555.34) # point=boxcircle color=yellow
+point(2488.94,1615.22) # point=boxcircle color=yellow
+point(2370.23,1585.5) # point=boxcircle color=yellow
+point(2473.31,1554.12) # point=boxcircle
+point(2469.89,1612.04) # point=boxcircle color=yellow
+point(2322.28,1548.03) # point=boxcircle color=yellow
+point(2394.82,1543.52) # point=boxcircle color=yellow
+point(2386.07,1566.17) # point=boxcircle color=yellow
+point(2403.94,1601.6) # point=boxcircle
+point(2443.06,1629) # point=boxcircle
+point(2397.56,1538.27) # point=boxcircle color=yellow
+point(2419.03,1582.99) # point=boxcircle color=yellow
+point(2507.3,1603.46) # point=boxcircle color=yellow
+point(2383.02,1549.84) # point=boxcircle
+point(2483.39,1640.29) # point=boxcircle color=yellow
+point(2501.69,1554.55) # point=boxcircle
+point(2424.27,1530.22) # point=boxcircle color=yellow
+point(2333.81,1531.33) # point=boxcircle
+point(2425.57,1568.95) # point=boxcircle color=yellow
+point(2425.97,1596.05) # point=boxcircle color=yellow
+point(2372.73,1530.71) # point=boxcircle color=yellow
+point(2392.43,1612.74) # point=boxcircle color=yellow
+point(2400.13,1518.22) # point=boxcircle color=yellow
+point(2436.57,1577.77) # point=boxcircle color=yellow
+point(2398.72,1495.76) # point=boxcircle color=yellow
+point(2456.01,1644.21) # point=boxcircle
+point(2412.74,1561.27) # point=boxcircle color=yellow
+point(2429.02,1499.16) # point=boxcircle color=yellow
+point(2373.05,1611.63) # point=boxcircle
+point(2383.5,1633.12) # point=boxcircle
+point(2426.36,1475.78) # point=boxcircle color=yellow
+point(2426.74,1505.08) # point=boxcircle
+point(2370.67,1655.24) # point=boxcircle color=yellow
+point(2346.4,1632.28) # point=boxcircle
+point(2410.37,1653.03) # point=boxcircle color=yellow
+point(2445.06,1524.19) # point=boxcircle
+point(2420.93,1481.23) # point=boxcircle color=yellow
+point(2410.27,1524.49) # point=boxcircle color=yellow
+point(2402.08,1544.19) # point=boxcircle color=yellow
+point(2480.13,1504.16) # point=boxcircle
+point(2405.61,1584.87) # point=boxcircle color=yellow
+point(2439.94,1617.77) # point=boxcircle
+point(2400.39,1558.76) # point=boxcircle
+point(2409.96,1658.77) # point=boxcircle color=yellow
+point(2443.25,1657.83) # point=boxcircle
+point(2367.15,1550.71) # point=boxcircle
+point(2362.58,1636.91) # point=boxcircle
+point(2375.57,1523.69) # point=boxcircle color=yellow
+point(2428.58,1508.4) # point=boxcircle
+point(2424.77,1625.41) # point=boxcircle
+point(2495.6,1524.35) # point=boxcircle
+point(2394.07,1513.06) # point=boxcircle color=yellow
+point(2320.01,1578.31) # point=boxcircle color=yellow
+point(2401.08,1662.78) # point=boxcircle
+point(2453.33,1651.03) # point=boxcircle
+point(2382.07,1590.32) # point=boxcircle
+point(2469.75,1528.03) # point=boxcircle
+point(2385.2,1554.17) # point=boxcircle
+point(2431.11,1488.72) # point=boxcircle
+point(2444.63,1661.05) # point=boxcircle
+point(2400.82,1649.26) # point=boxcircle
+point(2416.21,1476.27) # point=boxcircle
+point(2355.91,1575.12) # point=boxcircle
+point(2420.17,1488.87) # point=boxcircle color=yellow
+point(2383.91,1537.21) # point=boxcircle
+point(2447.26,1499.64) # point=boxcircle
+point(2329.68,1593.68) # point=boxcircle
+point(2435.69,1489.25) # point=boxcircle
+point(2364.12,1606.99) # point=boxcircle
+point(2443.35,1619.65) # point=boxcircle
+point(2423.01,1526.9) # point=boxcircle
+point(2340.92,1520.45) # point=boxcircle
+point(2409.93,1608.74) # point=boxcircle
+point(2391.14,1550.38) # point=boxcircle color=yellow
+point(2482.49,1604.61) # point=boxcircle
+point(2464.23,1629.99) # point=boxcircle
+point(2344.96,1600.63) # point=boxcircle
+point(2450.07,1661.47) # point=boxcircle
+point(2384.59,1602.91) # point=boxcircle
+point(2439.54,1644.06) # point=boxcircle
+point(2363.51,1552.8) # point=boxcircle
+point(2433.83,1653.09) # point=boxcircle
+point(2470.63,1548.41) # point=boxcircle
+point(2452.79,1549.09) # point=boxcircle
+point(2477.89,1553.73) # point=boxcircle
+point(2435.85,1572.69) # point=boxcircle color=yellow
+point(2459.65,1618.34) # point=boxcircle
+point(2412.6,1645.82) # point=boxcircle
+point(2378.74,1518.06) # point=boxcircle

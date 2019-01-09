@@ -1,0 +1,29 @@
+# Region file format: DS9 version 4.1
+global color=green dashlist=8 3 width=1 font="helvetica 10 normal roman" select=1 highlite=1 dash=0 fixed=0 edit=1 move=1 delete=1 include=1 source=1
+physical
+line(1690.2037,3190.8352,1690.2037,3182.8352) # line=0 0 color=red width=4
+line(1681.0905,3181.411,1688.0905,3181.411) # line=0 0 color=red width=4
+point(1685.926,3168.7416) # point=circle 60 width=2 tag={Stars}
+point(1657.1489,3197.1438) # point=circle 60 color=blue width=2 tag={Stars}
+point(1700.1736,3158.7406) # point=circle 60 width=2 tag={Stars}
+point(1699.0326,3147.9406) # point=circle 60 color=blue width=2 tag={Stars}
+point(1693.0529,3207.1411) # point=circle 60 color=blue width=2 tag={Stars}
+point(1678.2343,3181.7422) # point=circle 60 color=red width=2 tag={Stars}
+point(1687.3523,3185.3415) # point=circle 60 color=red width=2 tag={Stars}
+point(1683.3646,3206.7418) # point=circle 60 color=blue width=2 tag={Stars}
+point(1724.6794,3167.3388) # point=circle 60 color=blue width=2 tag={Stars}
+point(1670.2564,3190.3428) # point=circle 60 width=2 tag={Stars}
+point(1717.2707,3171.9393) # point=circle 60 color=blue width=2 tag={Stars}
+point(1685.0723,3177.7417) # point=circle 60 color=red width=2 tag={Stars}
+point(1698.1805,3180.5407) # point=circle 60 color=red width=2 tag={Stars}
+point(1704.7356,3203.1403) # point=circle 60 color=blue width=2 tag={Stars}
+point(1669.6861,3194.9428) # point=circle 60 width=2 tag={Stars}
+point(1696.4715,3191.1408) # point=circle 60 color=red width=2 tag={Stars}
+point(1690.2037,3204.1413) # point=circle 60 width=2 tag={Stars}
+point(1668.2627,3202.3429) # point=circle 60 color=blue width=2 tag={Stars}
+point(1692.4826,3197.1412) # point=circle 60 width=2 tag={Stars}
+point(1712.4289,3197.5397) # point=circle 60 color=blue width=2 tag={Stars}
+point(1696.7566,3196.5408) # point=circle 60 width=2 tag={Stars}
+point(1693.3343,3159.5411) # point=circle 60 width=2 tag={Stars}
+box(1690.202,3180.5413,75.64,75.64,0) # width=4 dash=1
+circle(1690.202,3180.5413,37.82) # color=yellow width=2

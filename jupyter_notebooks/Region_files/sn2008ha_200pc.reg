@@ -1,0 +1,35 @@
+# Region file format: DS9 version 4.1
+global color=green dashlist=8 3 width=1 font="helvetica 10 normal roman" select=1 highlite=1 dash=0 fixed=0 edit=1 move=1 delete=1 include=1 source=1
+physical
+point(1721.85,3159.42) # point=boxcircle color=yellow
+point(1694.07,3138) # point=boxcircle color=yellow
+point(1677.05,3158.53) # point=boxcircle color=yellow
+point(1723.46,3181.6) # point=boxcircle color=yellow
+point(1693.23,3187.75) # point=boxcircle color=yellow
+point(1681.69,3176.67) # point=boxcircle color=yellow
+point(1692.85,3141.74) # point=boxcircle color=yellow
+point(1714.34,3172.32) # point=boxcircle color=yellow
+point(1706.33,3180.91) # point=boxcircle color=yellow
+point(1729.04,3197.88) # point=boxcircle color=yellow
+point(1736.35,3149.5) # point=boxcircle color=yellow
+point(1740.15,3146.37) # point=boxcircle color=yellow
+point(1741.36,3170.26) # point=boxcircle color=yellow
+point(1697.83,3142.24) # point=boxcircle color=yellow
+point(1721.06,3168.46) # point=boxcircle color=yellow
+point(1704.36,3193.1) # point=boxcircle color=yellow
+point(1734.37,3171.2) # point=boxcircle color=yellow
+point(1705.93,3185.69) # point=boxcircle color=yellow
+point(1718.35,3138.61) # point=boxcircle color=yellow
+point(1686.64,3165.25) # point=boxcircle color=yellow
+point(1728.51,3187.94) # point=boxcircle color=yellow
+point(1685.26,3191.57) # point=boxcircle
+point(1696.04,3153.54) # point=boxcircle
+point(1735.93,3189.86) # point=boxcircle color=yellow
+point(1693.28,3163.17) # point=boxcircle color=yellow
+point(1729.64,3150.23) # point=boxcircle
+point(1673.57,3176.92) # point=boxcircle
+point(1723.43,3146.06) # point=boxcircle
+point(1698.81,3182.99) # point=boxcircle
+point(1730.52,3174.09) # point=boxcircle
+point(1676.56,3169.69) # point=boxcircle color=yellow
+point(1732.65,3187.18) # point=boxcircle color=yellow

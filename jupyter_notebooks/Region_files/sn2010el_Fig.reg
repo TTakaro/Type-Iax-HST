@@ -1,0 +1,54 @@
+# Region file format: DS9 version 4.1
+global color=green dashlist=8 3 width=1 font="helvetica 10 normal roman" select=1 highlite=1 dash=0 fixed=0 edit=1 move=1 delete=1 include=1 source=1
+physical
+line(2422.3866,1530.8379,2372.3866,1530.8379) # line=0 0 color=red width=4
+line(2427.6519,1476.8345,2427.6655,1526.8345) # line=0 0 color=red width=4
+point(2481.21,1430.75) # point=circle 40 color=cyan width=4 tag={Stars}
+point(2433.87,1657.86) # point=circle 40 color=cyan width=4 tag={Stars}
+point(2403.57,1654.98) # point=circle 40 color=cyan width=4 tag={Stars}
+point(2398.72,1483.66) # point=circle 40 width=4 tag={Stars}
+point(2554.33,1518.31) # point=circle 40 color=cyan width=4 tag={Stars}
+point(2404.08,1547.2) # point=circle 40 color=red width=4 tag={Stars}
+point(2434.37,1431.02) # point=circle 40 color=cyan width=4 tag={Stars}
+point(2358.44,1646.45) # point=circle 40 color=cyan width=4 tag={Stars}
+point(2295.63,1558.71) # point=circle 40 color=cyan width=4 tag={Stars}
+point(2437.27,1458.48) # point=circle 40 width=4 tag={Stars}
+point(2382.86,1539.56) # point=circle 40 color=red width=4 tag={Stars}
+point(2468.75,1420.46) # point=circle 40 color=cyan width=4 tag={Stars}
+point(2486.59,1664.23) # point=circle 40 color=cyan width=4 tag={Stars}
+point(2378.76,1639.82) # point=circle 40 color=cyan width=4 tag={Stars}
+point(2413.71,1544.41) # point=circle 40 color=red width=4 tag={Stars}
+point(2478.84,1413.88) # point=circle 40 color=cyan width=4 tag={Stars}
+point(2427.04,1542.76) # point=circle 40 color=red width=4 tag={Stars}
+point(2315.95,1611.89) # point=circle 40 color=cyan width=4 tag={Stars}
+point(2315.81,1468.68) # point=circle 40 color=cyan width=4 tag={Stars}
+point(2534.08,1487.13) # point=circle 40 color=cyan width=4 tag={Stars}
+point(2542.66,1480.76) # point=circle 40 color=cyan width=4 tag={Stars}
+point(2464.16,1604.27) # point=circle 40 width=4 tag={Stars}
+point(2533.17,1528.38) # point=circle 40 color=cyan width=4 tag={Stars}
+point(2341.43,1497.62) # point=circle 40 width=4 tag={Stars}
+point(2509.25,1573.77) # point=circle 40 width=4 tag={Stars}
+point(2455.5,1643.57) # point=circle 40 color=cyan width=4 tag={Stars}
+point(2527.97,1496.41) # point=circle 40 color=cyan width=4 tag={Stars}
+point(2560.12,1491.94) # point=circle 40 color=cyan width=4 tag={Stars}
+point(2295.77,1589.51) # point=circle 40 color=cyan width=4 tag={Stars}
+point(2340.06,1428.79) # point=circle 40 color=cyan width=4 tag={Stars}
+point(2447.47,1603.87) # point=circle 40 width=4 tag={Stars}
+point(2383.38,1422.08) # point=circle 40 color=cyan width=4 tag={Stars}
+point(2381.38,1665.05) # point=circle 40 color=cyan width=4 tag={Stars}
+point(2462.1,1532.47) # point=circle 40 color=red width=4 tag={Stars}
+point(2330.8,1620.64) # point=circle 40 color=cyan width=4 tag={Stars}
+point(2524.42,1615.33) # point=circle 40 color=cyan width=4 tag={Stars}
+point(2358.77,1582.68) # point=circle 40 width=4 tag={Stars}
+point(2494.06,1484.71) # point=circle 40 width=4 tag={Stars}
+point(2326.57,1616.27) # point=circle 40 color=cyan width=4 tag={Stars}
+point(2442.43,1491.66) # point=circle 40 color=red width=4 tag={Stars}
+point(2543.17,1569.54) # point=circle 40 color=cyan width=4 tag={Stars}
+point(2492.85,1534.86) # point=circle 40 width=4 tag={Stars}
+point(2505.58,1446.4) # point=circle 40 color=cyan width=4 tag={Stars}
+point(2349.11,1534.16) # point=circle 40 width=4 tag={Stars}
+point(2487.72,1518.99) # point=circle 40 width=4 tag={Stars}
+point(2531.79,1498.28) # point=circle 40 color=cyan width=4 tag={Stars}
+circle(2427.4939,1531.2345,147.4) # color=yellow width=4
+box(2237.1369,2495.8075,2930,3663.998,0)
+box(2427.6661,1530.8345,294,294,4.4787681e-06) # width=4 dash=1
