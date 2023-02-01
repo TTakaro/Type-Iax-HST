@@ -1,7 +1,7 @@
 # Type-Iax-HST
 The repository contains all of the software and data which you'll need to run the analysis in Takaro et. al 2019. In this study, we aim to estimate the age of stars which explode as Type Iax supernovae. To acoomplish this, we analyze images of star clusters taken using the Hubble Space Telescope. By then matching the measured brightnesses of these stars to theoretical predictions of stellar brightnesses, we estimate the ages of the stars. By fitting a series of different lines of constant age (isochrones) to each stellar cluster, we produce probability distributions for each star cluster and associated supernova. Below, we show the fitting procedure for one supernova, SN 2008ha, showing (from top left to bottom right) the host galaxy, the star cluster under consideration, the brightnesses across several frequency ranges, and the resulting probability distribution for this supernova.
 
-![plot](https://github.com/ttakaro/type-iax-hst/jupyter_notebooks/2008ha_Fig_Crop.pdf?raw=true)
+![plot](https://github.com/ttakaro/type-iax-hst/2008ha_Fig_Crop1024_1.jpg?raw=true)
 
 Using this repositorty as a base, one can also fit isochrones to their own data using the Isochrone Goodness of Fit statistic.
 
